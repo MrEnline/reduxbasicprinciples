@@ -1,63 +1,56 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import { configureStore } from '@reduxjs/toolkit';
-import { legacy_createStore } from '@reduxjs/toolkit';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import { configureStore } from "@reduxjs/toolkit";
+import { legacy_createStore, bindActionCreators } from "@reduxjs/toolkit";
+import reducer from "./reducer";
+import * as actions from "./actions";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-const initialState = { value: 0 };
-
-const reducer = (state = initialState, action) => {
-    switch (action.type) {
-        case 'INC':
-            return {
-                ...state,
-                value: state.value + 1,
-            };
-        case 'DEC':
-            return {
-                ...state,
-                value: state.value - 1,
-            };
-        case 'RND':
-            return {
-                ...state,
-                value: state.value * action.payload,
-            };
-        default:
-            return state;
-    }
-};
+const root = ReactDOM.createRoot(document.getElementById("root"));
 
 // const store = configureStore({ reducer });
 const store = legacy_createStore(reducer);
 
+const { dispatch, subscribe, getState } = store;
+
 const update = () => {
-    document.getElementById('counter').textContent = store.getState().value;
+    document.getElementById("counter").textContent = getState().value;
 };
 
-store.subscribe(update);
+subscribe(update);
 
-const inc = () => ({ type: 'INC' });
-const dec = () => ({ type: 'DEC' });
-const rnd = (value) => ({ type: 'RND', payload: value });
+// const bindActionCreator =
+//     (creator, dispatch) =>
+//     (...args) =>
+//         dispatch(creator(...args));
 
-document.getElementById('inc').addEventListener('click', () => {
-    store.dispatch(inc());
-});
+// const incDispatch = bindActionCreator(inc, dispatch);
+// const decDispatch = bindActionCreator(dec, dispatch);
+// const rndDispatch = bindActionCreator(rnd, dispatch);
 
-document.getElementById('dec').addEventListener('click', () => {
-    store.dispatch(dec());
-});
+// const incDispatch = () => dispatch(inc());
 
-document.getElementById('rnd').addEventListener('click', () => {
-    const rndValue = Math.floor(Math.random() * 10);
-    store.dispatch(rnd(rndValue));
+// const decDispatch = () => dispatch(dec());
+
+// const rndDispatch = (rndValue) => dispatch(rnd(rndValue));
+
+// document.getElementById("inc").addEventListener("click", incDispatch);
+
+// document.getElementById("dec").addEventListener("click", decDispatch);
+
+// document.getElementById("rnd").addEventListener("click", () => {
+//     rndDispatch(Math.floor(Math.random() * 10));
+// });
+
+//реализация через bindActionsCreators в redux
+
+const { inc, dec, rnd } = bindActionCreators(actions, dispatch);
+document.getElementById("inc").addEventListener("click", inc);
+
+document.getElementById("dec").addEventListener("click", dec);
+
+document.getElementById("rnd").addEventListener("click", () => {
+    rnd(Math.floor(Math.random() * 10));
 });
 
 root.render(<React.StrictMode></React.StrictMode>);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
